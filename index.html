@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Invisible Medic - ลงทะเบียน</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background: linear-gradient(135deg, #ff8c61 0%, #ff6b35 50%, #fff5f0 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            color: #ff6b35;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.125rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .form-group .required {
+            color: #e74c3c;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: 'Sarabun', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #ff6b35;
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+
+        .form-group .input-with-unit {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group .input-with-unit input {
+            flex: 1;
+        }
+
+        .form-group .input-with-unit .unit {
+            color: #666;
+            font-weight: 600;
+            font-size: 1rem;
+            min-width: 30px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .info-box {
+            background: #fff5f0;
+            border-left: 4px solid #ff6b35;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .info-box p {
+            color: #555;
+            font-size: 0.9375rem;
+            line-height: 1.6;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1.25rem;
+            background: linear-gradient(135deg, #ff6b35 0%, #ff9a56 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.125rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 107, 53, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .privacy-note {
+            text-align: center;
+            color: #999;
+            font-size: 0.875rem;
+            margin-top: 1.5rem;
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                padding: 2rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <div class="logo">🏥</div>
+                <h1>The Invisible Medic</h1>
+                <p>ระบบตรวจสุขภาพอัจฉริยะด้วย AI</p>
+            </div>
+
+            <div class="info-box">
+                <p>📋 กรุณากรอกข้อมูลเพื่อให้ AI วิเคราะห์สุขภาพได้แม่นยำ ข้อมูลจะถูกเก็บไว้ในเครื่องของคุณเท่านั้น</p>
+            </div>
+
+            <form id="user-form">
+                <div class="form-group">
+                    <label>ชื่อ-นามสกุล <span class="required">*</span></label>
+                    <input type="text" id="fullName" required placeholder="เช่น สมชาย ใจดี">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>เพศ <span class="required">*</span></label>
+                        <select id="gender" required>
+                            <option value="">เลือกเพศ</option>
+                            <option value="male">ชาย</option>
+                            <option value="female">หญิง</option>
+                            <option value="other">อื่นๆ</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>อายุ <span class="required">*</span></label>
+                        <div class="input-with-unit">
+                            <input type="number" id="age" required min="1" max="120" placeholder="35">
+                            <span class="unit">ปี</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>น้ำหนัก <span class="required">*</span></label>
+                        <div class="input-with-unit">
+                            <input type="number" id="weight" required min="20" max="300" step="0.1" placeholder="65">
+                            <span class="unit">kg</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>ส่วนสูง <span class="required">*</span></label>
+                        <div class="input-with-unit">
+                            <input type="number" id="height" required min="100" max="250" step="0.1" placeholder="170">
+                            <span class="unit">cm</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>โรคประจำตัว (ถ้ามี)</label>
+                    <input type="text" id="conditions" placeholder="เช่น เบาหวาน, ความดันโลหิตสูง">
+                </div>
+
+                <div class="form-group">
+                    <label>ยาที่รับประทานเป็นประจำ (ถ้ามี)</label>
+                    <input type="text" id="medications" placeholder="เช่น Metformin, Amlodipine">
+                </div>
+
+                <div class="form-group">
+                    <label>การออกกำลังกาย</label>
+                    <select id="exercise">
+                        <option value="">เลือกระดับการออกกำลังกาย</option>
+                        <option value="none">ไม่ออกกำลังกาย</option>
+                        <option value="light">เบา (1-2 วัน/สัปดาห์)</option>
+                        <option value="moderate">ปานกลาง (3-4 วัน/สัปดาห์)</option>
+                        <option value="active">มาก (5-7 วัน/สัปดาห์)</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    เริ่มตรวจสุขภาพ 🚀
+                </button>
+            </form>
+
+            <div class="privacy-note">
+                🔒 ข้อมูลของคุณจะถูกเก็บไว้ในเครื่องเท่านั้น ไม่มีการส่งไปยังเซิร์ฟเวอร์ภายนอก
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Calculate BMI
+        function calculateBMI(weight, height) {
+            const heightInMeters = height / 100;
+            return (weight / (heightInMeters * heightInMeters)).toFixed(1);
+        }
+
+        // Get BMI category
+        function getBMICategory(bmi) {
+            if (bmi < 18.5) return 'น้ำหนักต่ำกว่าเกณฑ์';
+            if (bmi < 23) return 'น้ำหนักปกติ';
+            if (bmi < 25) return 'น้ำหนักเกิน';
+            if (bmi < 30) return 'อ้วนระดับ 1';
+            return 'อ้วนระดับ 2';
+        }
+
+        // Handle form submission
+        document.getElementById('user-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Get form data
+            const userData = {
+                fullName: document.getElementById('fullName').value.trim(),
+                gender: document.getElementById('gender').value,
+                age: parseInt(document.getElementById('age').value),
+                weight: parseFloat(document.getElementById('weight').value),
+                height: parseFloat(document.getElementById('height').value),
+                conditions: document.getElementById('conditions').value.trim() || 'ไม่มี',
+                medications: document.getElementById('medications').value.trim() || 'ไม่มี',
+                exercise: document.getElementById('exercise').value || 'ไม่ระบุ',
+                timestamp: new Date().toISOString()
+            };
+
+            // Calculate BMI
+            userData.bmi = calculateBMI(userData.weight, userData.height);
+            userData.bmiCategory = getBMICategory(parseFloat(userData.bmi));
+
+            // Save to localStorage
+            localStorage.setItem('invisibleMedicUser', JSON.stringify(userData));
+
+            // Show success animation and redirect
+            const btn = document.querySelector('.submit-btn');
+            btn.textContent = '✅ บันทึกข้อมูลสำเร็จ!';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                window.location.href = 'ai-health-analysis.html';
+            }, 800);
+        });
+
+        // Load existing data if available
+        window.addEventListener('load', function() {
+            const savedData = localStorage.getItem('invisibleMedicUser');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+
+                // Ask if user wants to use saved data
+                const useSaved = confirm(`พบข้อมูลของ ${data.fullName}\n\nต้องการใช้ข้อมูลเดิม หรือกรอกใหม่?\n\n✅ ตกลง = ใช้ข้อมูลเดิม\n❌ ยกเลิก = กรอกใหม่`);
+
+                if (useSaved) {
+                    // Auto-fill form
+                    document.getElementById('fullName').value = data.fullName;
+                    document.getElementById('gender').value = data.gender;
+                    document.getElementById('age').value = data.age;
+                    document.getElementById('weight').value = data.weight;
+                    document.getElementById('height').value = data.height;
+                    document.getElementById('conditions').value = data.conditions !== 'ไม่มี' ? data.conditions : '';
+                    document.getElementById('medications').value = data.medications !== 'ไม่มี' ? data.medications : '';
+                    document.getElementById('exercise').value = data.exercise !== 'ไม่ระบุ' ? data.exercise : '';
+                }
+            }
+        });
+
+        // Real-time BMI calculation preview
+        const weightInput = document.getElementById('weight');
+        const heightInput = document.getElementById('height');
+
+        function updateBMIPreview() {
+            const weight = parseFloat(weightInput.value);
+            const height = parseFloat(heightInput.value);
+
+            if (weight && height && weight >= 20 && height >= 100) {
+                const bmi = calculateBMI(weight, height);
+                const category = getBMICategory(parseFloat(bmi));
+
+                // Show BMI info
+                let bmiInfo = document.getElementById('bmi-info');
+                if (!bmiInfo) {
+                    bmiInfo = document.createElement('div');
+                    bmiInfo.id = 'bmi-info';
+                    bmiInfo.style.cssText = 'margin-top: 1rem; padding: 1rem; background: #e8f5e9; border-radius: 8px; text-align: center;';
+                    heightInput.closest('.form-row').after(bmiInfo);
+                }
+                bmiInfo.innerHTML = `<strong style="color: #2e7d32;">💪 BMI: ${bmi}</strong> <span style="color: #666;">(${category})</span>`;
+            }
+        }
+
+        weightInput.addEventListener('input', updateBMIPreview);
+        heightInput.addEventListener('input', updateBMIPreview);
+    </script>
+</body>
+</html>

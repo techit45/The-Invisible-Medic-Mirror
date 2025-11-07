@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Monitor | The Invisible Medic</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-900: #111827;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-900);
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background: white;
+            border-bottom: 1px solid var(--gray-200);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .navbar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 600;
+            font-size: 1.25rem;
+            color: var(--gray-900);
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--gray-100);
+            border-radius: 8px;
+            font-size: 0.875rem;
+            color: var(--gray-600);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--gray-400);
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.active {
+            background: var(--success);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-header h1 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            color: var(--gray-600);
+            font-size: 1rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .metrics-section {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid var(--gray-200);
+            overflow: hidden;
+        }
+
+        .metric-card {
+            padding: 1.5rem;
+            transition: box-shadow 0.2s;
+        }
+
+        .metric-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .metric-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
+        }
+
+        .metric-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .metric-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .metric-icon.heart {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .metric-icon.lungs {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .metric-icon.temp {
+            background: #fef3c7;
+            color: #f59e0b;
+        }
+
+        .metric-icon.drop {
+            background: #e0e7ff;
+            color: #6366f1;
+        }
+
+        .metric-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--gray-600);
+        }
+
+        .metric-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        .badge-normal {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-warning {
+            background: #fed7aa;
+            color: #92400e;
+        }
+
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-waiting {
+            background: var(--gray-200);
+            color: var(--gray-600);
+        }
+
+        .metric-value-container {
+            display: flex;
+            align-items: baseline;
+            gap: 0.5rem;
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            line-height: 1;
+        }
+
+        .metric-unit {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--gray-500);
+        }
+
+        .metric-trend {
+            margin-top: 0.75rem;
+            font-size: 0.875rem;
+            color: var(--gray-600);
+        }
+
+        .info-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .qr-section {
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .qr-section h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 1rem;
+        }
+
+        .qr-container {
+            display: inline-block;
+            padding: 1rem;
+            background: white;
+            border: 2px solid var(--gray-200);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .qr-help {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+            line-height: 1.5;
+        }
+
+        .patient-info {
+            padding: 1.5rem;
+        }
+
+        .patient-info h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 1rem;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+        }
+
+        .info-value {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .history-section {
+            padding: 1.5rem;
+        }
+
+        .history-section h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 1rem;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+            background: var(--gray-50);
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+        }
+
+        .history-time {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            font-weight: 500;
+            min-width: 80px;
+        }
+
+        .history-data {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.875rem;
+        }
+
+        .history-data span {
+            color: var(--gray-700);
+        }
+
+        .footer {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            text-align: center;
+            color: var(--gray-500);
+            font-size: 0.875rem;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid var(--gray-200);
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .navbar {
+                padding: 1rem;
+            }
+
+            .metrics-section {
+                grid-template-columns: 1fr;
+            }
+
+            .metric-value {
+                font-size: 2rem;
+            }
+
+            .page-header h1 {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* SVG Icons */
+        .svg-icon {
+            width: 20px;
+            height: 20px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg class="svg-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                    </svg>
+                </div>
+                <span>The Invisible Medic</span>
+            </div>
+            <div class="status-badge">
+                <div class="status-dot" id="connection-status"></div>
+                <span id="status-text">กำลังเชื่อมต่อ</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>แดชบอร์ดติดตามสุขภาพ</h1>
+            <p>ระบบตรวจวัดสัญญาณชีพอัตโนมัติแบบเรียลไทม์</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="metrics-section">
+                <!-- Heart Rate Card -->
+                <div class="card metric-card">
+                    <div class="metric-header">
+                        <div class="metric-title">
+                            <div class="metric-icon heart">
+                                <svg class="svg-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                            <span class="metric-label">อัตราการเต้นหัวใจ</span>
+                        </div>
+                        <span class="metric-badge badge-waiting" id="hr-badge">รอข้อมูล</span>
+                    </div>
+                    <div class="metric-value-container">
+                        <span class="metric-value" id="heart-rate">--</span>
+                        <span class="metric-unit">BPM</span>
+                    </div>
+                    <div class="metric-trend">ค่าปกติ: 60-100 BPM</div>
+                </div>
+
+                <!-- SpO2 Card -->
+                <div class="card metric-card">
+                    <div class="metric-header">
+                        <div class="metric-title">
+                            <div class="metric-icon lungs">
+                                <svg class="svg-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"></path>
+                                </svg>
+                            </div>
+                            <span class="metric-label">ออกซิเจนในเลือด</span>
+                        </div>
+                        <span class="metric-badge badge-waiting" id="spo2-badge">รอข้อมูล</span>
+                    </div>
+                    <div class="metric-value-container">
+                        <span class="metric-value" id="spo2">--</span>
+                        <span class="metric-unit">%</span>
+                    </div>
+                    <div class="metric-trend">ค่าปกติ: ≥95%</div>
+                </div>
+
+                <!-- Temperature Card -->
+                <div class="card metric-card">
+                    <div class="metric-header">
+                        <div class="metric-title">
+                            <div class="metric-icon temp">
+                                <svg class="svg-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L11 6.477V16h2a1 1 0 110 2H7a1 1 0 110-2h2V6.477L6.237 7.582l1.715 5.349a1 1 0 01-.285 1.05A3.989 3.989 0 015 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L9 4.323V3a1 1 0 011-1z" clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                            <span class="metric-label">อุณหภูมิร่างกาย</span>
+                        </div>
+                        <span class="metric-badge badge-waiting" id="temp-badge">รอข้อมูล</span>
+                    </div>
+                    <div class="metric-value-container">
+                        <span class="metric-value" id="temperature">--</span>
+                        <span class="metric-unit">°C</span>
+                    </div>
+                    <div class="metric-trend">ค่าปกติ: 36.0-37.5°C</div>
+                </div>
+
+                <!-- Perfusion Card -->
+                <div class="card metric-card">
+                    <div class="metric-header">
+                        <div class="metric-title">
+                            <div class="metric-icon drop">
+                                <svg class="svg-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                            <span class="metric-label">ดัชนีการไหลเวียน</span>
+                        </div>
+                        <span class="metric-badge badge-waiting" id="pi-badge">รอข้อมูล</span>
+                    </div>
+                    <div class="metric-value-container">
+                        <span class="metric-value" id="perfusion">--</span>
+                        <span class="metric-unit">%</span>
+                    </div>
+                    <div class="metric-trend">ค่าปกติ: ≥0.3%</div>
+                </div>
+            </div>
+
+            <div class="info-panel">
+                <!-- QR Code Section -->
+                <div class="card qr-section">
+                    <h3>สแกน QR Code เพื่อดูข้อมูล</h3>
+                    <div class="qr-container">
+                        <div id="qrcode"></div>
+                    </div>
+                    <p class="qr-help">สแกนเพื่อเข้าถึงข้อมูลสุขภาพบนอุปกรณ์มือถือ</p>
+                </div>
+
+                <!-- Patient Info -->
+                <div class="card patient-info">
+                    <h3>ข้อมูลการตรวจ</h3>
+                    <div class="info-item">
+                        <span class="info-label">เวลาอัปเดต</span>
+                        <span class="info-value" id="last-update">--:--:--</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">สถานะระบบ</span>
+                        <span class="info-value" id="system-status">ออนไลน์</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">จำนวนข้อมูล</span>
+                        <span class="info-value" id="data-count">0 รายการ</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Section -->
+        <div class="card history-section">
+            <h3>ประวัติการตรวจล่าสุด</h3>
+            <div id="history-list">
+                <div class="history-item">
+                    <span class="history-time">--:--</span>
+                    <div class="history-data">
+                        <span>รอข้อมูล...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>ระบบตรวจวัดสัญญาณชีพอัตโนมัติ | พัฒนาด้วย Firebase & ESP32</p>
+            <p>ข้อมูลอัปเดตทุก 2 วินาที | © 2024 The Invisible Medic</p>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDB2ULt3R58eBjYvztpfDK3v7hm6-RThhI",
+            authDomain: "the-invisible-medic.firebaseapp.com",
+            databaseURL: "https://invisiblemedicdata-default-rtdb.asia-southeast1.firebasedatabase.app/",
+            projectId: "the-invisible-medic",
+            storageBucket: "the-invisible-medic.firebasestorage.app",
+            messagingSenderId: "213615637723",
+            appId: "1:213615637723:web:6e0907dea0c8a5432508fe"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const healthDataRef = db.ref('health_data');
+
+        // Generate QR Code
+        const qrcode = new QRCode(document.getElementById("qrcode"), {
+            text: window.location.href,
+            width: 160,
+            height: 160,
+            colorDark: "#111827",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+
+        // DOM Elements
+        const heartRateEl = document.getElementById('heart-rate');
+        const spo2El = document.getElementById('spo2');
+        const tempEl = document.getElementById('temperature');
+        const perfusionEl = document.getElementById('perfusion');
+        const lastUpdateEl = document.getElementById('last-update');
+        const connectionStatusEl = document.getElementById('connection-status');
+        const statusTextEl = document.getElementById('status-text');
+        const dataCountEl = document.getElementById('data-count');
+        const historyListEl = document.getElementById('history-list');
+
+        const hrBadgeEl = document.getElementById('hr-badge');
+        const spo2BadgeEl = document.getElementById('spo2-badge');
+        const tempBadgeEl = document.getElementById('temp-badge');
+        const piBadgeEl = document.getElementById('pi-badge');
+
+        let dataCount = 0;
+        let historyData = [];
+
+        function getHeartRateStatus(hr) {
+            if (hr < 60) return { text: 'ต่ำ', class: 'badge-warning' };
+            if (hr > 100) return { text: 'สูง', class: 'badge-warning' };
+            return { text: 'ปกติ', class: 'badge-normal' };
+        }
+
+        function getSpO2Status(spo2) {
+            if (spo2 < 90) return { text: 'ต่ำมาก', class: 'badge-danger' };
+            if (spo2 < 95) return { text: 'ต่ำ', class: 'badge-warning' };
+            return { text: 'ปกติ', class: 'badge-normal' };
+        }
+
+        function getTempStatus(temp) {
+            if (temp >= 37.5) return { text: 'มีไข้', class: 'badge-danger' };
+            if (temp >= 37.0) return { text: 'สูงเล็กน้อย', class: 'badge-warning' };
+            if (temp < 36.0) return { text: 'ต่ำ', class: 'badge-warning' };
+            return { text: 'ปกติ', class: 'badge-normal' };
+        }
+
+        function getPerfusionStatus(pi) {
+            if (pi >= 1.0) return { text: 'ดีมาก', class: 'badge-normal' };
+            if (pi >= 0.3) return { text: 'ปกติ', class: 'badge-normal' };
+            return { text: 'อ่อน', class: 'badge-warning' };
+        }
+
+        function updateBadge(element, status) {
+            element.textContent = status.text;
+            element.className = 'metric-badge ' + status.class;
+        }
+
+        function addToHistory(hr, spo2, temp, pi, time) {
+            historyData.unshift({ hr, spo2, temp, pi, time });
+            if (historyData.length > 5) historyData.pop();
+
+            historyListEl.innerHTML = historyData.map(item => `
+                <div class="history-item">
+                    <span class="history-time">${item.time}</span>
+                    <div class="history-data">
+                        <span>❤️ ${item.hr} BPM</span>
+                        <span>🫁 ${item.spo2.toFixed(1)}%</span>
+                        <span>🌡️ ${item.temp.toFixed(1)}°C</span>
+                        <span>💉 ${item.pi.toFixed(2)}%</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Listen for data
+        healthDataRef.limitToLast(1).on('value', (snapshot) => {
+            if (snapshot.exists()) {
+                connectionStatusEl.classList.add('active');
+                statusTextEl.textContent = 'เชื่อมต่อแล้ว';
+
+                snapshot.forEach((childSnapshot) => {
+                    const data = childSnapshot.val();
+                    dataCount++;
+
+                    const hr = data.heart_rate_bpm || 0;
+                    const spo2 = data.spo2_percent || 0;
+                    const temp = data.temperature_c || 0;
+                    const pi = data.perfusion_index || 0;
+
+                    heartRateEl.textContent = hr;
+                    spo2El.textContent = spo2.toFixed(1);
+                    tempEl.textContent = temp.toFixed(1);
+                    perfusionEl.textContent = pi.toFixed(2);
+
+                    updateBadge(hrBadgeEl, getHeartRateStatus(hr));
+                    updateBadge(spo2BadgeEl, getSpO2Status(spo2));
+                    updateBadge(tempBadgeEl, getTempStatus(temp));
+                    updateBadge(piBadgeEl, getPerfusionStatus(pi));
+
+                    const now = new Date();
+                    lastUpdateEl.textContent = now.toLocaleTimeString('th-TH');
+                    dataCountEl.textContent = `${dataCount} รายการ`;
+
+                    addToHistory(hr, spo2, temp, pi, now.toLocaleTimeString('th-TH'));
+                });
+            } else {
+                statusTextEl.textContent = 'ไม่มีข้อมูล';
+            }
+        });
+
+        healthDataRef.on('error', (error) => {
+            console.error('Firebase error:', error);
+            connectionStatusEl.classList.remove('active');
+            statusTextEl.textContent = 'เชื่อมต่อล้มเหลว';
+        });
+    </script>
+</body>
+</html>

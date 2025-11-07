@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code - The Invisible Medic</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- QR Code Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background: linear-gradient(135deg, #ff8c61 0%, #ff6b35 50%, #fff5f0 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .container {
+            background: white;
+            border-radius: 24px;
+            padding: 3rem;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: #ff6b35;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.125rem;
+            margin-bottom: 2rem;
+        }
+
+        .qr-container {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 16px;
+            margin: 2rem auto;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        #qrcode {
+            margin: 0 auto;
+        }
+
+        .url-display {
+            background: #e8f5e9;
+            border: 2px dashed #4caf50;
+            border-radius: 12px;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 0.9375rem;
+            color: #2e7d32;
+        }
+
+        .instructions {
+            text-align: left;
+            background: #fff5f0;
+            border-left: 4px solid #ff6b35;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 2rem;
+        }
+
+        .instructions h3 {
+            color: #ff6b35;
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+
+        .instructions ol {
+            margin-left: 1.5rem;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .instructions li {
+            margin-bottom: 0.5rem;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Sarabun', sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff6b35 0%, #ff9a56 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #4caf50;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 107, 53, 0.4);
+        }
+
+        .input-group {
+            margin: 2rem 0;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+            text-align: left;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: 'Sarabun', sans-serif;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #ff6b35;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+
+            .buttons,
+            .input-group,
+            .subtitle {
+                display: none;
+            }
+
+            .container {
+                box-shadow: none;
+                padding: 2rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 2rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🏥</div>
+        <h1>The Invisible Medic</h1>
+        <p class="subtitle">สแกน QR Code เพื่อเข้าใช้งาน</p>
+
+        <div class="input-group">
+            <label>URL ของเว็บไซต์</label>
+            <input type="text" id="url-input" placeholder="https://your-site.web.app" value="">
+        </div>
+
+        <div class="qr-container">
+            <canvas id="qrcode"></canvas>
+        </div>
+
+        <div class="url-display" id="current-url">
+            กำลังโหลด...
+        </div>
+
+        <div class="buttons">
+            <button class="btn btn-primary" onclick="generateQR()">
+                🔄 สร้าง QR Code ใหม่
+            </button>
+            <button class="btn btn-secondary" onclick="downloadQR()">
+                💾 ดาวน์โหลด QR Code
+            </button>
+            <button class="btn btn-secondary" onclick="printQR()">
+                🖨️ พิมพ์ QR Code
+            </button>
+        </div>
+
+        <div class="instructions">
+            <h3>📱 วิธีใช้งาน</h3>
+            <ol>
+                <li><strong>ติดตั้งเว็บไซต์</strong> - อัปโหลดโปรเจคไปที่ Firebase Hosting หรือ Netlify</li>
+                <li><strong>ใส่ URL</strong> - คัดลอก URL ของเว็บไซต์ที่ deploy แล้ว มาใส่ในช่องด้านบน</li>
+                <li><strong>สร้าง QR Code</strong> - กดปุ่ม "สร้าง QR Code ใหม่"</li>
+                <li><strong>ดาวน์โหลด/พิมพ์</strong> - ดาวน์โหลดหรือพิมพ์ QR Code</li>
+                <li><strong>นำไปติดที่เครื่อง</strong> - ติดไว้ที่หน้ากระจก Smart Mirror</li>
+                <li><strong>สแกนเพื่อใช้งาน</strong> - ผู้ใช้สแกน QR Code ด้วยมือถือเพื่อเข้าใช้งาน</li>
+            </ol>
+        </div>
+
+        <div style="margin-top: 2rem; padding: 1rem; background: #fff3cd; border-radius: 12px; color: #856404;">
+            <strong>💡 เคล็ดลับ:</strong> พิมพ์ QR Code ขนาดใหญ่ (A4) และเคลือบกันน้ำเพื่อความทนทาน
+        </div>
+    </div>
+
+    <script>
+        let currentURL = window.location.origin + window.location.pathname.replace('qr-code.html', 'index.html');
+
+        // Try to get URL from Firebase Hosting
+        if (window.location.hostname.includes('web.app') || window.location.hostname.includes('firebaseapp.com')) {
+            currentURL = window.location.origin + '/index.html';
+        }
+
+        // Set default URL
+        document.getElementById('url-input').value = currentURL;
+
+        // Generate QR Code
+        function generateQR() {
+            const url = document.getElementById('url-input').value.trim();
+
+            if (!url) {
+                alert('กรุณาใส่ URL');
+                return;
+            }
+
+            // Validate URL
+            try {
+                new URL(url);
+            } catch (e) {
+                alert('URL ไม่ถูกต้อง กรุณาใส่ URL ที่สมบูรณ์ เช่น https://example.com');
+                return;
+            }
+
+            // Clear previous QR code
+            const canvas = document.getElementById('qrcode');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Generate new QR code
+            QRCode.toCanvas(canvas, url, {
+                width: 300,
+                margin: 2,
+                color: {
+                    dark: '#000000',
+                    light: '#FFFFFF'
+                },
+                errorCorrectionLevel: 'H'
+            }, function (error) {
+                if (error) {
+                    console.error(error);
+                    alert('เกิดข้อผิดพลาดในการสร้าง QR Code');
+                } else {
+                    document.getElementById('current-url').textContent = url;
+                    currentURL = url;
+                }
+            });
+        }
+
+        // Download QR Code
+        function downloadQR() {
+            const canvas = document.getElementById('qrcode');
+
+            // Create download link
+            const link = document.createElement('a');
+            link.download = 'invisible-medic-qr-code.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+
+            alert('✅ ดาวน์โหลด QR Code สำเร็จ!');
+        }
+
+        // Print QR Code
+        function printQR() {
+            window.print();
+        }
+
+        // Generate initial QR code
+        window.addEventListener('load', function() {
+            generateQR();
+        });
+
+        // Enter key to generate
+        document.getElementById('url-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateQR();
+            }
+        });
+    </script>
+</body>
+</html>
