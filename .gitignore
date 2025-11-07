@@ -6,3 +6,11 @@
 
 # Node modules
 node_modules/
+
+# Environment and Config Files (contains API keys)
+config.js
+.env
+.env.local
+
+# Arduino Config (contains WiFi credentials and Firebase secrets)
+Code/config.h

@@ -13,6 +13,9 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
+    <!-- Config file (contains API keys - not in git) -->
+    <script src="config.js"></script>
+
     <style>
         :root {
             --primary: #ff6b35;
@@ -950,19 +953,10 @@
         // ==========================================
         // CONFIGURATION
         // ==========================================
+        // Note: API keys are now loaded from config.js (not in git)
+        // Copy config.example.js to config.js and add your keys
 
-        const GEMINI_API_KEY = 'AIzaSyBUhp8uN0XzpvaAFmfQN3MwYvwvgQam_oM';
         const USE_REAL_AI = true;
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDB2ULt3R58eBjYvztpfDK3v7hm6-RThhI",
-            authDomain: "the-invisible-medic.firebaseapp.com",
-            databaseURL: "https://invisiblemedicdata-default-rtdb.asia-southeast1.firebasedatabase.app/",
-            projectId: "the-invisible-medic",
-            storageBucket: "the-invisible-medic.firebasestorage.app",
-            messagingSenderId: "213615637723",
-            appId: "1:213615637723:web:6e0907dea0c8a5432508fe"
-        };
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
