@@ -1,0 +1,17 @@
+# Netlify Configuration File
+
+[build]
+  publish = "."
+
+[[redirects]]
+  from = "/*"
+  to = "/smart-mirror.html"
+  status = 200
+  force = false
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
